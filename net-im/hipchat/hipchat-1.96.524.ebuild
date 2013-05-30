@@ -22,6 +22,7 @@ src_unpack() {
 	mkdir ${S}
 	cd ${S}
 	unpack ${A}
+	epatch "${FILESDIR}/desktop.patch"
 	cd -
 }
 
