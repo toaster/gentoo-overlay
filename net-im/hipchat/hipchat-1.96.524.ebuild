@@ -29,6 +29,9 @@ src_unpack() {
 
 src_prepare() {
 	epatch "${FILESDIR}/desktop.patch"
+	mkdir -p "usr/share/pixmaps"
+	cd "usr/share/pixmaps"
+	ln -s ../icons/hicolor/128x128/apps/hipchat.png .
 }
 
 src_install() {
