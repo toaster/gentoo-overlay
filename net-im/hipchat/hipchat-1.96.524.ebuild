@@ -4,6 +4,8 @@
 
 EAPI=5
 
+inherit eutils
+
 DESCRIPTION="HipChat client"
 HOMEPAGE="http://www.hipchat.com"
 SRC_URI="${SRC_URI}
@@ -22,8 +24,11 @@ src_unpack() {
 	mkdir ${S}
 	cd ${S}
 	unpack ${A}
-	epatch "${FILESDIR}/desktop.patch"
 	cd -
+}
+
+src_prepare() {
+	epatch "${FILESDIR}/desktop.patch"
 }
 
 src_install() {

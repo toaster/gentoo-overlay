@@ -1,11 +1,13 @@
 --- usr/share/applications/hipchat.desktop.orig 2013-05-30 09:31:42.000000000 +0200
-+++ usr/share/applications/hipchat.desktop  2013-05-30 09:31:50.000000000 +0200
-@@ -3,7 +3,7 @@ Name=HipChat 2.0
++++ usr/share/applications/hipchat.desktop  2013-05-30 09:36:09.000000000 +0200
+@@ -3,8 +3,8 @@ Name=HipChat 2.0
  GenericName=Group chat and IM
  Comment=Group chat and IM - built for teams
  Exec=/opt/HipChat/bin/hipchat
 -Icon=hipchat.png
+-Terminal=0
 +Icon=hipchat
- Terminal=0
++Terminal=false
  Type=Application
  Encoding=UTF-8
+ Categories=Network;InstantMessaging;
