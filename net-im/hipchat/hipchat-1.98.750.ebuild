@@ -14,7 +14,7 @@ SRC_URI="${SRC_URI}
 
 LICENSE=""
 SLOT="0"
-KEYWORDS="~x86"
+KEYWORDS="~x86 ~amd64"
 IUSE=""
 
 DEPEND=""
