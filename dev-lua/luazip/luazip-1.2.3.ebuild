@@ -13,7 +13,7 @@ SRC_URI="https://github.com/luaforge/${PN}/archive/v${MY_PV}.zip"
 
 LICENSE="GPL"
 SLOT="0"
-KEYWORDS="~x86"
+KEYWORDS="~x86 ~amd64"
 IUSE=""
 
 DEPEND="
