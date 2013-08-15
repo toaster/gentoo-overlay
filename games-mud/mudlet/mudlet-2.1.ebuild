@@ -8,7 +8,9 @@ inherit games qt4-r2
 
 DESCRIPTION="Mudlet is a quality MUD client, designed to take mudding to a new level."
 HOMEPAGE="http://www.mudlet.org"
-SRC_URI="http://sourceforge.net/code-snapshots/git/m/mu/mudlet/code.git/mudlet-code-2b355dc19c2ee867733d79e18b491fb73dec17b5.zip"
+MY_P="mudlet-code-2b355dc19c2ee867733d79e18b491fb73dec17b5"
+SRC_URI="http://sourceforge.net/code-snapshots/git/m/mu/mudlet/code.git/${MY_P}.zip"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE=""
 SLOT="0"
@@ -33,12 +35,9 @@ RDEPEND="${DEPEND}
 "
 
 src_configure() {
-	(
-		cd "${S}"
-		epatch "${FILESDIR}/lua.patch"
-		epatch "${FILESDIR}/mudlet-lua.patch"
-		epatch "${FILESDIR}/install_prefix.patch"
-	)
+	epatch "${FILESDIR}/lua.patch"
+	epatch "${FILESDIR}/mudlet-lua.patch"
+	epatch "${FILESDIR}/install_prefix.patch"
 	eqmake4 "${S}/src/src.pro" INSTALL_PREFIX=${INSTALL_PREFIX}
 }
 
