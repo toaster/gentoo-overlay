@@ -1,0 +1,37 @@
+--- net-tools-1.60/hostname.c.orig	2009-09-30 17:44:21.000000000 +0200
++++ net-tools-1.60/hostname.c	2009-09-08 11:55:03.000000000 +0200
+@@ -176,11 +176,6 @@ static void showhname(char *hname, int c
+     case 'f':
+ 	printf("%s\n", hp->h_name);
+ 	break;
+-    case 's':
+-	if (p != NULL)
+-	    *p = '\0';
+-	printf("%s\n", hp->h_name);
+-	break;
+     }
+ }
+
+@@ -270,6 +265,7 @@ int main(int argc, char **argv)
+     char myname[MAXHOSTNAMELEN + 1] =
+     {0};
+     char *file = NULL;
++    char *p;
+
+     static const struct option long_options[] =
+     {
+@@ -370,7 +366,13 @@ int main(int argc, char **argv)
+ 	if (!type)
+ 	    printf("%s\n", myname);
+ 	else
+-	    showhname(myname, type);
++		if (type == 's') {
++			if (p = strchr(myname, '.'))
++				*p = '\0';
++			printf("%s\n", myname);
++		}
++		else
++			showhname(myname, type);
+ 	break;
+     case 3:
+ 	if (file) {
