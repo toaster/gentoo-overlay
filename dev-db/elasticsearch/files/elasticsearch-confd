@@ -1,0 +1,5 @@
+ES_HOME="/opt/elasticsearch"
+USER="elasticsearch"
+PID_DIR="/var/run/elasticsearch"
+CONFIG_DIR="/etc/elasticsearch"
+CLUSTER_NAME=`hostname`

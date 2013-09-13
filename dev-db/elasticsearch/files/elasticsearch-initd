@@ -1,0 +1,41 @@
+#!/sbin/runscript
+# Copyright 1999-2012 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+depend() {
+	need net
+}
+
+PID_FILE="${PID_DIR}/${CLUSTER_NAME}.pid"
+
+start() {
+	ebegin "Starting ${SVCNAME}"
+
+	if [ ! -d "${PID_DIR}" ]; then
+		einfo " Creating ${PID_DIR}"
+		mkdir -p "${PID_DIR}"
+		chown "${USER}" "${PID_DIR}"
+	fi
+
+	sudo -u "${USER}" "${ES_HOME}/bin/elasticsearch" -p "${PID_FILE}"\
+			-Des.path.conf="${CONFIG_DIR}" -Des.cluster.name="${CLUSTER_NAME}"\
+			-Des.path.home="${ES_HOME}"
+
+	echo "Waiting up to 15 seconds for ${SVCNAME} to come up"
+
+	for i in `seq 1 15`; do
+		sleep 1
+		if (curl localhost:9200 >/dev/null 2>&1); then
+			break
+		fi
+		false
+	done
+
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping ${SVCNAME}"
+	start-stop-daemon --stop --pidfile "${PID_FILE}"
+	eend $?
+}
