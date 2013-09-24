@@ -19,6 +19,10 @@ SLOT="0"
 KEYWORDS=""
 IUSE=""
 
+# FIXME update
+# - phonon has been replaced by QMediaPlayer (which is part of qt-mobility but requires -I-Patches)
+# - quazip has been replaced by libzip (what's with luazip?)
+# - check history since 2013-01-01 for more
 DEPEND="
 	dev-lang/lua
 	dev-libs/quazip
