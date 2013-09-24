@@ -35,6 +35,7 @@ RDEPEND="${DEPEND}
 "
 
 src_configure() {
+	epatch "${FILESDIR}/lua.patch"
 	epatch "${FILESDIR}/mudlet-lua.patch"
 	epatch "${FILESDIR}/install_prefix-2.1.patch"
 	eqmake4 "${S}/src/src.pro" INSTALL_PREFIX=${INSTALL_PREFIX}
