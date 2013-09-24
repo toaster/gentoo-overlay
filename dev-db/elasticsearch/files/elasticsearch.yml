@@ -1,0 +1,34 @@
+# This is a basic configuration with some hints to interesting settings.
+# For a more complete example have a look at /opt/elasticsearch/config/elasticsearch.yml.
+
+# The cluster name (is set by /etc/conf.d/elasticsearch)
+#cluster.name: elasticsearch
+
+# Path Settings
+# The configuration path is set by /etc/conf.d/elasticsearch
+#path.conf: /path/to/conf
+path.data: /var/lib/elasticsearch
+path.work: /var/run/elasticsearch
+path.logs: /var/log/elasticsearch
+
+# Force all memory to be locked, forcing the JVM to never swap
+#bootstrap.mlockall: true
+
+# Gateway Settings
+#   Controls when to start the initial recovery process when starting a new cluster
+#   allowing for better reused of existing data during recovery.
+#gateway.recover_after_nodes: 1
+#gateway.recover_after_time: 5m
+#gateway.expected_nodes: 2
+
+# Controls the minimum number of master eligible nodes this node should "see"
+# in order to operate within the cluster.
+#   Set this to a higher value (2-4) when running more than 2 nodes in the cluster
+#discovery.zen.minimum_master_nodes: 1
+
+# The time to wait for ping responses from other nodes when doing node discovery
+#discovery.zen.ping.timeout: 3s
+
+# Unicast Discovery (disable multicast)
+#discovery.zen.ping.multicast.enabled: false
+#discovery.zen.ping.unicast.hosts: ["host1", "host2"]
