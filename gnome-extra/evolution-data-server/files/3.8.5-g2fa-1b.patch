@@ -1,0 +1,32 @@
+--- libebackend/Makefile.in.orig	2013-10-02 09:37:13.436283497 +0200
++++ libebackend/Makefile.in	2013-10-02 09:38:06.499286291 +0200
+@@ -131,6 +131,7 @@ am_libebackend_1_2_la_OBJECTS = $(am__ob
+ 	libebackend_1_2_la-e-db3-utils.lo \
+ 	libebackend_1_2_la-e-module.lo \
+ 	libebackend_1_2_la-e-server-side-source.lo \
++	libebackend_1_2_la-e-soup-auth-bearer.lo \
+ 	libebackend_1_2_la-e-source-registry-server.lo \
+ 	libebackend_1_2_la-e-sqlite3-vfs.lo \
+ 	libebackend_1_2_la-e-user-prompter.lo \
+@@ -704,6 +705,7 @@ distclean-compile:
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libebackend_1_2_la-e-oauth2-support.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libebackend_1_2_la-e-offline-listener.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libebackend_1_2_la-e-server-side-source.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libebackend_1_2_la-e-soup-auth-bearer.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libebackend_1_2_la-e-source-registry-server.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libebackend_1_2_la-e-sqlite3-vfs.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libebackend_1_2_la-e-user-prompter-server-extension.Plo@am__quote@
+@@ -850,6 +852,13 @@ libebackend_1_2_la-e-server-side-source.
+ @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+ @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libebackend_1_2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libebackend_1_2_la-e-server-side-source.lo `test -f 'e-server-side-source.c' || echo '$(srcdir)/'`e-server-side-source.c
+ 
++libebackend_1_2_la-e-soup-auth-bearer.lo: e-soup-auth-bearer.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libebackend_1_2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libebackend_1_2_la-e-soup-auth-bearer.lo -MD -MP -MF $(DEPDIR)/libebackend_1_2_la-e-soup-auth-bearer.Tpo -c -o libebackend_1_2_la-e-soup-auth-bearer.lo `test -f 'e-soup-auth-bearer.c' || echo '$(srcdir)/'`e-soup-auth-bearer.c
++@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libebackend_1_2_la-e-soup-auth-bearer.Tpo $(DEPDIR)/libebackend_1_2_la-e-soup-auth-bearer.Plo
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='e-soup-auth-bearer.c' object='libebackend_1_2_la-e-soup-auth-bearer.lo' libtool=yes @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libebackend_1_2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libebackend_1_2_la-e-soup-auth-bearer.lo `test -f 'e-soup-auth-bearer.c' || echo '$(srcdir)/'`e-soup-auth-bearer.c
++
+ libebackend_1_2_la-e-source-registry-server.lo: e-source-registry-server.c
+ @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libebackend_1_2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libebackend_1_2_la-e-source-registry-server.lo -MD -MP -MF $(DEPDIR)/libebackend_1_2_la-e-source-registry-server.Tpo -c -o libebackend_1_2_la-e-source-registry-server.lo `test -f 'e-source-registry-server.c' || echo '$(srcdir)/'`e-source-registry-server.c
+ @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libebackend_1_2_la-e-source-registry-server.Tpo $(DEPDIR)/libebackend_1_2_la-e-source-registry-server.Plo
