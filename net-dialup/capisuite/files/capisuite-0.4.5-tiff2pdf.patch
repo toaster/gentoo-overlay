@@ -1,0 +1,30 @@
+diff -ru scripts/cs_helpers.pyin.orig scripts/cs_helpers.pyin
+--- scripts/cs_helpers.pyin.orig	2009-07-06 14:10:48.000000000 +0200
++++ scripts/cs_helpers.pyin	2009-07-07 17:08:12.000000000 +0200
+@@ -183,14 +183,11 @@
+ 			ret=sfftotiff(attachment,basename+"tif")
+ 			if (ret or not os.access(basename+"tif",os.F_OK)):
+ 				raise "conv-error","Can't convert sff to tif. sfftobmp not installed?"
+-			# tif -> ps -> pdf
+-			# the first pipe must be handled by the shell so that the output of
+-			# of ps2pdf can be read immediately. Handling this shell in Python
+-			# leads to an overflow of the ps2pdf output pipe...
+-			command="tiff2ps -h11 -H12 -L.5 -w8.5 -a "+escape(basename+"tif")+" | ps2pdf -sPAPERSIZE=a4 - -"
++			# tif -> pdf
++			command="tiff2pdf -p A4 " + escape(basename + "tif")
+ 			tiff2pdf=popen2.Popen3(command)
+ 			if (tiff2pdf.poll()!=-1):
+-				raise "conv-error","Error while calling tiff2ps or ps2pdf. Not installed?"
++				raise "conv-error","Error while calling tiff2pdf. Not installed?"
+ 			tiff2pdf.tochild.close() # we don't need the input pipe
+ 			# create attachment with pdf stream
+ 			filepart = email.MIMEBase.MIMEBase("application","pdf",name=os.path.basename(basename)+"pdf")
+@@ -199,7 +196,7 @@
+ 			tiff2pdf.fromchild.close()
+ 			ret=tiff2pdf.wait()
+ 			if (ret!=0):
+-				raise "conv-error","Error "+str(ret)+" occured during tiff2ps or ps2pdf"
++				raise "conv-error","Error "+str(ret)+" occured during tiff2pdf"
+ 			os.unlink(basename+"tif")
+ 			email.Encoders.encode_base64(filepart)
+ 		elif (mail_type=="cff"): # color fax file

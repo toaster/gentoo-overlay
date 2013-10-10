@@ -1,0 +1,76 @@
+diff -ru scripts/capisuitefax.in.orig scripts/capisuitefax.in
+--- scripts/capisuitefax.in.orig	2009-07-06 14:10:23.000000000 +0200
++++ scripts/capisuitefax.in	2009-07-07 17:03:54.000000000 +0200
+@@ -23,6 +23,7 @@
+ quiet=0
+ listqueue=0
+ useprefix=1
++low_resolution = 0
+ 
+ def usage(error=""):
+ 	print """capisuitefax - capisuite tool for enqueueing faxes
+@@ -110,9 +111,9 @@
+ 			print "Job is currently in transmission. Can't abort."
+ 
+ try:
+-	optlist,args = getopt.getopt(sys.argv[1:], "d:a:u:lhqnA:S:"
++	optlist,args = getopt.getopt(sys.argv[1:], "d:a:u:lhqnA:S:L"
+ 	  ,['dialstring=','noprefix','help',"abort=","list","quiet","user=",
+-	    'addressee=','subject='])
++	    'addressee=','subject=','low-res'])
+ 
+ except getopt.GetoptError, e:
+ 	usage(e.msg)
+@@ -192,9 +193,13 @@
+ 		continue
+ 
+ 	newname=cs_helpers.uniqueName(sendq,"fax","sff")
++	lowres_name= sendq + "fax-lowres" + newname[len(sendq) + 3:]
+ 
+-	command="gs -dNOPAUSE -dQUIET -dBATCH -sPAPERSIZE=a4 -sDEVICE=cfax -sOutputFile=" \
+-	  + newname+" "+cs_helpers.escape(i)
++	command="gs -dNOPAUSE -dQUIET -dBATCH -sPAPERSIZE=a4 -sDEVICE=cfax -r203x98"\
++	  + " -sOutputFile=" + lowres_name + " " + cs_helpers.escape(i)
++	ret=(os.system(command))>>8
++	command="gs -dNOPAUSE -dQUIET -dBATCH -sPAPERSIZE=a4 -sDEVICE=cfax" \
++	  + " -sOutputFile=" + newname + " " + cs_helpers.escape(i)
+ 	ret=(os.system(command))>>8
+ 	if (ret):
+ 		sys.stderr.write("error during SFF-conversion at file "+i+'. \
+@@ -206,9 +211,11 @@
+ 	  +"user=\""+user+"\"\naddressee=\""+addressee+"\"\nsubject=\""
+ 	  +subject+"\"\n")
+ 	os.chmod(newname,0600)
++	os.chmod(lowres_name,0600)
+ 	os.chmod(newname[:-3]+"txt",0600)
+ 	if (os.getuid()==0):
+ 		user_entry=pwd.getpwnam(user)
+ 		os.chown(newname,user_entry[2],user_entry[3])
++		os.chown(lowres_name,user_entry[2],user_entry[3])
+ 		os.chown(newname[:-3]+"txt",user_entry[2],user_entry[3])
+-	print i,"successful enqueued as",newname,"for",dialstring
++	print i,"successful enqueued as",newname,"(",lowres_name,") for",dialstring
+diff -ru scripts/idle.py.orig scripts/idle.py
+--- scripts/idle.py.orig	2009-07-06 14:10:35.000000000 +0200
++++ scripts/idle.py	2009-07-07 17:04:21.000000000 +0200
+@@ -114,6 +114,10 @@
+ 					"Fax to "+addressee+" ("+dialstring+") sent successfully.",
+ 					mailtext)
+ 			else:
++				lowres_job_fax_path = sendq + "fax-lowres" + job_fax[3:]
++				if (result == 0x3400 and resultB3 == 0x3313 and os.access(lowres_job_fax_path, os.F_OK)):
++					capisuite.log("job " + job_fax + ": failed with 'unsupported feature' - trying low res from now on", 1)
++					os.rename(lowres_job_fax_path, sendq + job_fax)
+ 				max_tries=int(cs_helpers.getOption(config,"","send_tries","10"))
+ 				delays=cs_helpers.getOption(config,"","send_delays","60,60,60,300,300,3600,3600,18000,36000").split(",")
+ 				delays=map(int,delays)
+@@ -160,6 +164,9 @@
+ 		return(capisuite.disconnect(call))
+ 
+ def movejob(job,olddir,newdir,user):
++	lowres_job = "fax-lowres" + job[3:]
++	if (os.access(olddir + lowres_job, os.F_OK)):
++		os.rename(olddir + lowres_job, newdir + user + "-" + lowres_job)
+ 	os.rename(olddir+job,newdir+user+"-"+job)
+ 	os.rename(olddir+job[:-3]+"txt",newdir+user+"-"+job[:-3]+"txt")
+ 

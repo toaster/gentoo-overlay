@@ -1,0 +1,197 @@
+diff -ru scripts/incoming.py.orig scripts/incoming.py
+--- scripts/incoming.py.orig	2009-07-07 17:41:47.000000000 +0200
++++ scripts/incoming.py	2009-07-07 17:35:38.000000000 +0200
+@@ -230,7 +230,9 @@
+ 		(cause,causeB3)=capisuite.disconnect(call)
+ 		capisuite.log("connection lost with cause 0x%x,0x%x" % (cause,causeB3),1,call)
+ 
++	mail_msg = "You got a voice call from " + call_from + " to " + call_to + "\nDate: " + time.ctime() + "\n\n"
+ 	if (os.access(filename,os.R_OK)):
++		mail_msg += "See attached file.\nThe original file was saved to file://" + filename + "\n\n"
+ 		cs_helpers.writeDescription(filename,
+ 			"call_from=\""+call_from+"\"\ncall_to=\""+call_to+"\"\ntime=\""
+ 			+time.ctime()+"\"\ncause=\"0x%x/0x%x\"\n" % (cause,causeB3))
+@@ -239,17 +241,18 @@
+ 		os.chown(filename,userdata[2],userdata[3])
+ 		os.chmod(filename[:-2]+"txt",0600)
+ 		os.chown(filename[:-2]+"txt",userdata[2],userdata[3])
++	else:
++		filename = None
+ 
+-		fromaddress=cs_helpers.getOption(config,curr_user,"voice_email_from","")
+-		if (fromaddress==""):
+-			fromaddress=curr_user
+-		mailaddress=cs_helpers.getOption(config,curr_user,"voice_email","")
+-		if (mailaddress==""):
+-			mailaddress=curr_user
+-		if (action=="mailandsave"):
+-			cs_helpers.sendMIMEMail(fromaddress, mailaddress, "Voice call received from "+call_from+" to "+call_to, "la",
+-				"You got a voice call from "+call_from+" to "+call_to+"\nDate: "+time.ctime()+"\n\n"
+-				+"See attached file.\nThe original file was saved to file://"+filename+"\n\n", filename)
++	fromaddress=cs_helpers.getOption(config,curr_user,"voice_email_from","")
++	if (fromaddress==""):
++		fromaddress=curr_user
++	mailaddress=cs_helpers.getOption(config,curr_user,"voice_email","")
++	if (mailaddress==""):
++		mailaddress=curr_user
++	if (action=="mailandsave"):
++		cs_helpers.sendMIMEMail(fromaddress, mailaddress,
++			"Voice call received from "+call_from+" to "+call_to, "la", mail_msg, filename)
+ 
+ 
+ # @brief remote inquiry function (uses german wave snippets!)
+diff -ru scripts/cs_helpers.pyin.orig scripts/cs_helpers.pyin
+--- scripts/cs_helpers.pyin.orig	2009-07-07 17:13:53.000000000 +0200
++++ scripts/cs_helpers.pyin	2009-07-07 17:28:01.000000000 +0200
+@@ -176,78 +176,80 @@
+ 	msg.preamble = 'This is a Multipart-MIME-message. Please use a capable mailer.\n'
+ 	msg.epilogue = '' # To guarantee the message ends with a newline
+ 
+-	basename=attachment[:attachment.rindex('.')+1]
+-	try:
+-		if (mail_type=="sff"): # normal fax file
+-			# sff -> tif
+-			ret=sfftotiff(attachment,basename+"tif")
+-			if (ret or not os.access(basename+"tif",os.F_OK)):
+-				raise "conv-error","Can't convert sff to tif. sfftobmp not installed?"
+-			# tif -> pdf
+-			command="tiff2pdf -p A4 " + escape(basename + "tif")
+-			tiff2pdf=popen2.Popen3(command)
+-			if (tiff2pdf.poll()!=-1):
+-				raise "conv-error","Error while calling tiff2pdf. Not installed?"
+-			tiff2pdf.tochild.close() # we don't need the input pipe
+-			# create attachment with pdf stream
+-			filepart = email.MIMEBase.MIMEBase("application","pdf",name=os.path.basename(basename)+"pdf")
+-			filepart.add_header('Content-Disposition','attachment',filename=os.path.basename(basename)+"pdf")
+-			filepart.set_payload(tiff2pdf.fromchild.read())
+-			tiff2pdf.fromchild.close()
+-			ret=tiff2pdf.wait()
+-			if (ret!=0):
+-				raise "conv-error","Error "+str(ret)+" occured during tiff2pdf"
+-			os.unlink(basename+"tif")
+-			email.Encoders.encode_base64(filepart)
+-		elif (mail_type=="cff"): # color fax file
+-			# cff -> ps
+-			ret=os.spawnlp(os.P_WAIT,"jpeg2ps","jpeg2ps","-m",attachment,"-o",basename+"ps")
+-			if (ret or not os.access(basename+"ps",os.F_OK)):
+-				raise "conv-error","Can't convert cff to ps. jpeg2ps not installed?"
+-			# tif -> ps -> pdf
+-			# the first pipe must be handled by the shell so that the output of
+-			# of ps2pdf can be read immediately. Handling this shell in Python
+-			# leads to an overflow of the ps2pdf output pipe...
+-			command="ps2pdf -sPAPERSIZE=a4 "+escape(basename+"ps")+" -"
+-			ps2pdf=popen2.Popen3(command)
+-			if (ps2pdf.poll()!=-1):
+-				raise "conv-error","Error while calling ps2pdf. Not installed?"
+-			ps2pdf.tochild.close() # we don't need the input pipe
+-			# create attachment with pdf stream
+-			filepart = email.MIMEBase.MIMEBase("application","pdf",name=os.path.basename(basename)+"pdf")
+-			filepart.add_header('Content-Disposition','attachment',filename=os.path.basename(basename)+"pdf")
+-			filepart.set_payload(ps2pdf.fromchild.read())
+-			ps2pdf.fromchild.close()
+-			ret=ps2pdf.wait()
+-			if (ret!=0):
+-				raise "conv-error","Error "+str(ret)+" occured during ps2pdf"
+-			os.unlink(basename+"ps")
+-			email.Encoders.encode_base64(filepart)
+-		elif (mail_type=="la"): # voice file
+-			# la -> wav
+-			# don't use stdout as sox needs a file to be able to seek in it otherwise the header will be incomplete
+-			ret = os.spawnlp(os.P_WAIT,"sox","sox",attachment,"-2",basename+"wav")
+-			if (ret or not os.access(basename+"wav",os.R_OK)):
+-				raise "conv-error","Error while calling sox. Not installed?"
+-			filepart = email.MIMEAudio.MIMEAudio(open(basename+"wav").read(),"x-wav",email.Encoders.encode_base64,name=os.path.basename(basename)+"wav")
+-			filepart.add_header('Content-Disposition','attachment',filename=os.path.basename(basename)+"wav")
+-			os.unlink(basename+"wav")
+-		textpart = email.MIMEText.MIMEText(text)
+-		msg.attach(textpart)
+-		msg.attach(filepart)
+-	except "conv-error",errormessage:
+-		text+="\n\nERROR occured while converting file: "+errormessage+"\nPlease talk to your friendly administrator.\n"
+-		textpart = email.MIMEText.MIMEText(text)
+-		msg.attach(textpart)
++	textpart = email.MIMEText.MIMEText(text)
++	msg.attach(textpart)
++	
++	if attachment:
++		basename=attachment[:attachment.rindex('.')+1]
++		try:
++			if (mail_type=="sff"): # normal fax file
++				# sff -> tif
++				ret=sfftotiff(attachment,basename+"tif")
++				if (ret or not os.access(basename+"tif",os.F_OK)):
++					raise "conv-error","Can't convert sff to tif. sfftobmp not installed?"
++				# tif -> pdf
++				command="tiff2pdf -p A4 " + escape(basename + "tif")
++				tiff2pdf=popen2.Popen3(command)
++				if (tiff2pdf.poll()!=-1):
++					raise "conv-error","Error while calling tiff2pdf. Not installed?"
++				tiff2pdf.tochild.close() # we don't need the input pipe
++				# create attachment with pdf stream
++				filepart = email.MIMEBase.MIMEBase("application","pdf",name=os.path.basename(basename)+"pdf")
++				filepart.add_header('Content-Disposition','attachment',filename=os.path.basename(basename)+"pdf")
++				filepart.set_payload(tiff2pdf.fromchild.read())
++				tiff2pdf.fromchild.close()
++				ret=tiff2pdf.wait()
++				if (ret!=0):
++					raise "conv-error","Error "+str(ret)+" occured during tiff2pdf"
++				os.unlink(basename+"tif")
++				email.Encoders.encode_base64(filepart)
++			elif (mail_type=="cff"): # color fax file
++				# cff -> ps
++				ret=os.spawnlp(os.P_WAIT,"jpeg2ps","jpeg2ps","-m",attachment,"-o",basename+"ps")
++				if (ret or not os.access(basename+"ps",os.F_OK)):
++					raise "conv-error","Can't convert cff to ps. jpeg2ps not installed?"
++				# tif -> ps -> pdf
++				# the first pipe must be handled by the shell so that the output of
++				# of ps2pdf can be read immediately. Handling this shell in Python
++				# leads to an overflow of the ps2pdf output pipe...
++				command="ps2pdf -sPAPERSIZE=a4 "+escape(basename+"ps")+" -"
++				ps2pdf=popen2.Popen3(command)
++				if (ps2pdf.poll()!=-1):
++					raise "conv-error","Error while calling ps2pdf. Not installed?"
++				ps2pdf.tochild.close() # we don't need the input pipe
++				# create attachment with pdf stream
++				filepart = email.MIMEBase.MIMEBase("application","pdf",name=os.path.basename(basename)+"pdf")
++				filepart.add_header('Content-Disposition','attachment',filename=os.path.basename(basename)+"pdf")
++				filepart.set_payload(ps2pdf.fromchild.read())
++				ps2pdf.fromchild.close()
++				ret=ps2pdf.wait()
++				if (ret!=0):
++					raise "conv-error","Error "+str(ret)+" occured during ps2pdf"
++				os.unlink(basename+"ps")
++				email.Encoders.encode_base64(filepart)
++			elif (mail_type=="la"): # voice file
++				# la -> wav
++				# don't use stdout as sox needs a file to be able to seek in it otherwise the header will be incomplete
++				ret = os.spawnlp(os.P_WAIT,"sox","sox",attachment,"-2",basename+"wav")
++				if (ret or not os.access(basename+"wav",os.R_OK)):
++					raise "conv-error","Error while calling sox. Not installed?"
++				filepart = email.MIMEAudio.MIMEAudio(open(basename+"wav").read(),"x-wav",email.Encoders.encode_base64,name=os.path.basename(basename)+"wav")
++				filepart.add_header('Content-Disposition','attachment',filename=os.path.basename(basename)+"wav")
++				os.unlink(basename+"wav")
++			msg.attach(filepart)
++		except "conv-error",errormessage:
++			text+="\n\nERROR occured while converting file: "+errormessage+"\nPlease talk to your friendly administrator.\n"
++			textpart = email.MIMEText.MIMEText(text)
++			msg.attach(textpart)
+ 
+-        try:
+-                server = smtplib.SMTP('localhost')
+-                server.sendmail(mail_from,mail_to.split(','),msg.as_string())
+-                server.quit()
+-        except Exception,e:
+-                capisuite.error("Error while trying to send mail: %s" % e)
+-        else:
+-                capisuite.log("mail sent successful",3)
++	try:
++		server = smtplib.SMTP('localhost')
++		server.sendmail(mail_from,mail_to.split(','),msg.as_string())
++		server.quit()
++	except Exception,e:
++		capisuite.error("Error while trying to send mail: %s" % e)
++	else:
++		capisuite.log("mail sent successful",3)
+ 
+ # @brief send a simple text email
+ #

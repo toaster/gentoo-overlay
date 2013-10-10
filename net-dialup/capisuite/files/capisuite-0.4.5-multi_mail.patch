@@ -1,0 +1,21 @@
+diff -ru scripts/cs_helpers.pyin.orig scripts/cs_helpers.pyin
+--- scripts/cs_helpers.pyin.orig	2009-07-06 14:10:48.000000000 +0200
++++ scripts/cs_helpers.pyin	2009-07-07 17:07:07.000000000 +0200
+@@ -245,7 +245,7 @@
+ 
+         try:
+                 server = smtplib.SMTP('localhost')
+-                server.sendmail(mail_from,mail_to,msg.as_string())
++                server.sendmail(mail_from,mail_to.split(','),msg.as_string())
+                 server.quit()
+         except Exception,e:
+                 capisuite.error("Error while trying to send mail: %s" % e)
+@@ -273,7 +273,7 @@
+ 
+ 	try:
+ 		server = smtplib.SMTP('localhost')
+-		server.sendmail(mail_from,mail_to,msg.as_string())
++		server.sendmail(mail_from,mail_to.split(','),msg.as_string())
+ 		server.quit()
+ 	except Exception,e:
+ 		capisuite.error("Error while trying to send mail: %s" % e)
