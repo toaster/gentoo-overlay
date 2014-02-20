@@ -1,0 +1,33 @@
+--- src/mpDris2.in.orig	2014-02-20 09:15:22.845088060 +0100
++++ src/mpDris2.in	2014-02-20 10:57:23.278085602 +0100
+@@ -35,6 +35,9 @@ import ConfigParser
+ import logging
+ import gettext
+ import time
++import urllib
++import httplib
++import json
+
+ gettext.bindtextdomain('mpDris2', '/usr/share/locale')
+ gettext.textdomain('mpDris2')
+@@ -918,6 +921,20 @@ def find_cover(song_url, metadata):
+                 f = os.path.expanduser(template % (artist, album))
+                 if os.path.exists(f):
+                     return 'file://' + f
++            # Download from lastfm
++            params = urllib.urlencode({'method': 'album.getinfo', 'api_key': '7317b4a9fe05ebfbcb95e691f2bc6fd7', 'artist': artist, 'album': album, 'format': 'json'})
++            conn = httplib.HTTPConnection("ws.audioscrobbler.com")
++            conn.request("GET", "/2.0/?" + params)
++            response = conn.getresponse()
++            if response.status == 200:
++                image_url = json.loads(response.read())['album']['image'][-1]['#text']
++                logger.info("image url: " + image_url)
++                image_path = os.path.expanduser(downloaded_covers[0] % (artist, album))
++                image_dir = os.path.dirname(image_path)
++                if not os.path.exists(image_dir):
++                    os.makedirs(image_dir)
++                urllib.urlretrieve(image_url, image_path)
++                return 'file://' + image_path
+
+     return None
+
