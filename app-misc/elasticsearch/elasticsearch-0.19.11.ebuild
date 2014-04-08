@@ -4,7 +4,7 @@
 
 EAPI=5
 
-inherit user
+inherit user systemd
 
 DESCRIPTION="flexible and powerful open source, distributed real-time
 search and analytics engine for the cloud"
@@ -53,4 +53,6 @@ src_install() {
 		keepdir "${path}"
 		fowners elasticsearch:elasticsearch "${path}"
 	done
+
+	systemd_dounit "${FILESDIR}"/${PN}.service
 }
