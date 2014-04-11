@@ -18,7 +18,9 @@ KEYWORDS="~x86 ~amd64"
 IUSE=""
 
 DEPEND=""
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND}
+	<x11-libs/libxcb-1.10
+	"
 
 src_unpack() {
 	mkdir ${S}
