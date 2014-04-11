@@ -19,9 +19,11 @@ KEYWORDS="~amd64"
 IUSE=""
 
 DEPEND=""
+# TODO python-notify abhängig von use-flag machen!
 RDEPEND="${DEPEND}
 	dev-lang/python:2.7
-	dev-python/python-mpd[python_targets_python2_7]
+	>=dev-python/python-mpd-0.5.1[python_targets_python2_7]
+	dev-python/notify-python[python_targets_python2_7]
 "
 
 S="${WORKDIR}/${MY_P}"
@@ -30,4 +32,5 @@ src_prepare() {
 	epatch "${FILESDIR}/python2.patch"
 	epatch "${FILESDIR}/${PV}-desktop.patch"
 	epatch "${FILESDIR}/lastfm_coverfetcher.patch"
+	epatch "${FILESDIR}/mpd_wrapper.patch"
 }
