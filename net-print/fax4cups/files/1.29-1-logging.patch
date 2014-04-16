@@ -1,0 +1,118 @@
+diff -upr orig/capisuite-fax patched_logging/capisuite-fax
+--- orig/capisuite-fax	2014-04-16 09:15:21.559062428 +0200
++++ patched_logging/capisuite-fax	2014-04-16 10:33:38.212493856 +0200
+@@ -2,7 +2,6 @@
+ 
+ PAGE=a4
+ FAXPRG=/usr/bin/capisuitefax
+-LOGDIR=/var/log/capisuit
+ 
+ #
+ # This is fax4CUPS 1.29, a fax back end for CUPS
+@@ -45,7 +44,7 @@ trap "cleanup" EXIT
+ 
+ function cleanup {
+ 	if [ -n "$FAXNAME" ]; then
+-		rm -f $FAXNAME.[0-9][0-9][0-9] 
++		rm -f $FAXNAME.[0-9][0-9][0-9]
+ 		if [ $# -lt 6 ]; then rm -f $FAXNAME; fi
+ 	fi
+ }
+@@ -59,6 +58,26 @@ if [ $# -eq 0 ]; then
+ 	exit 0
+ fi
+ 
++function exit_with_error() {
++	code=${1:-255}
++	msg=${2:-an error occured}
++	logoutput=$3
++
++	echo "ERROR: $msg" 1>&2
++	test -n "$logoutput" && {
++		echo "$logoutput" | while read line; do
++			echo "ERROR: >> $line" 1>&2
++		done
++	}
++	exit $code
++}
++
++function try_or_die() {
++	OUTPUT=`eval "$@" </dev/null 2>&1` || {
++		exit_with_error 1 "Failed to execute '$@'" "$OUTPUT"
++	}
++}
++
+ USER=$2
+ FROM=$USER
+ 
+@@ -72,9 +91,9 @@ NUMBER=""	# Use option "phone" as number
+ if [ $# -eq 6 ]; then
+ 	FAXNAME=$6
+ else
+-	FAXNAME=$(mktemp </dev/null /tmp/fax.XXXXXX) || ( echo "ERROR: Failed to create temporary file" 1>&2; exit 2 )
++	FAXNAME=$(mktemp </dev/null /tmp/fax.XXXXXX) || ( exit_with_error 2 "Failed to create temporary file" )
+ 	cat >$FAXNAME
+-	chown $USER $FAXNAME </dev/null 1>&2 || ( echo "ERROR: Failed to chown temporary file" 1>&2; exit 2 )
++	try_or_die chown "$USER" "$FAXNAME"
+ fi
+ 
+ # Parse user-specified options from the PostScript file and set -l/-m
+@@ -87,8 +106,8 @@ function getSelectedOption() {
+ }
+ 
+ function parseOptions() {
+-	
+-	while read LINE; do 
++
++	while read LINE; do
+ 		MAIN=${LINE%%:*}
+ 		OPTIONS=${LINE##*:}
+ 		getSelectedOption $OPTIONS
+@@ -102,8 +121,8 @@ function parseOptions() {
+ }
+ 
+ eval $(lpoptions -p $PRINTER -l | parseOptions)
+-if [ "$NUMBER" == "-j" ]; then 
+-	 NUMBER="$3"; 
++if [ "$NUMBER" == "-j" ]; then
++	 NUMBER="$3";
+ fi
+ 
+ # Scan user options and set -l/-m (override previous choices if necessary)
+@@ -123,29 +142,16 @@ echo 1>&2 # Apparently the first charact
+ 
+ # do some cheking before continuing
+ if [ -z "$NUMBER" ]; then
+-	echo "ERROR: Empty phone number"
+-	exit 2
++	exit_with_error 2 "Empty phone number"
+ elif [ "$NUMBER" == "(stdin)" ]; then
+-	echo "ERROR: (stdin) is not a valid phone number" 1>&2
+-	exit 2
++	exit_with_error 2 "(stdin) is not a valid phone number"
+ elif [ "$NUMBER" == "stdin" ]; then
+-	echo "ERROR: stdin is not a valid phone number" 1>&2
+-	exit 2
++	exit_with_error 2 "stdin is not a valid phone number"
+ elif [ ! -x "$FAXPRG" ]; then
+-	echo "ERROR: $FAXPRG: executable not found"
+-	exit 2
++	exit_with_error 2 "$FAXPRG: executable not found"
+ fi
+ 
+-pushd $LOGDIR # If there are problem, capisuite-fax will generate a log file in the current directory
+-
+-sudo -u $USER $FAXPRG -d $NUMBER $FAXNAME >>capisuitefax.log 2>&1
+-
+-RC=$?
+-
+-case $RC in
+-	0) echo "INFO: Fax sent" 1>&2 ;;
+-	# capisuitefax has no specific return values
+-        1) echo "ERROR: Could not send fax" 1>&2 ;;
+-esac
++try_or_die sudo -u "$USER" "$FAXPRG" -d "$NUMBER" "$FAXNAME"
++echo "INFO: Fax delivered to $FAXPRG" 1>&2
+ 
+-exit $RC
++exit 0

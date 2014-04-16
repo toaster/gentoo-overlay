@@ -1,0 +1,92 @@
+diff -upr patched_sudo/capisuite-fax patched_number_from_document/capisuite-fax
+--- patched_sudo/capisuite-fax	2014-04-16 10:42:28.653839381 +0200
++++ patched_number_from_document/capisuite-fax	2014-04-16 12:12:10.889741403 +0200
+@@ -95,7 +95,6 @@ if [ $# -eq 6 ]; then
+ else
+ 	FAXNAME=$(mktemp </dev/null /tmp/fax.XXXXXX) || ( exit_with_error 2 "Failed to create temporary file" )
+ 	cat >$FAXNAME
+-	try_or_die sudo /bin/chown "$USER" "$FAXNAME"
+ fi
+ 
+ # Parse user-specified options from the PostScript file and set -l/-m
+@@ -117,29 +116,41 @@ function parseOptions() {
+ 		case $MAIN in
+ 			PageSize/*) echo "PAGE=$( echo -n $SELOPT | tr '[:upper:]' '[:lower:]' )" ;;
+ 			Resolution/*) if [ $SELOPT == "204x98dpi" ]; then echo "RES=-l"; fi ;;
+-			Dial/*) if [ $SELOPT == "Manually" ]; then echo "NUMBER=-m"; elif [ $SELOPT == "JobName" ]; then echo "NUMBER=-j"; fi ;;
++			Dial/*)
++				if [ $SELOPT == "Manually" ]; then
++					echo "NUMBER=-m"
++				elif [ $SELOPT == "JobName" ]; then
++					echo "NUMBER=-j"
++				elif [ $SELOPT == "FromDocument" ]; then
++					echo "NUMBER=-f"
++				fi
++				;;
+ 		esac
+ 	done
+ }
+ 
+ eval $(lpoptions -p $PRINTER -l | parseOptions)
+-if [ "$NUMBER" == "-j" ]; then
+-	 NUMBER="$3";
+-fi
+ 
+ # Scan user options and set -l/-m (override previous choices if necessary)
+ 
+ for opt in $5; do
+ 	case "$opt" in
+-		lowres*) RES="-n" ;;
+-		hires*) RES="" ;;
+-		manual*) NUMBER="-m" ;;
+-		jobname*) NUMBER="$3" ;;
+-		phone=*) NUMBER="${opt#phone=}" ;;
+-		media=*) PAGE=$( echo ${opt#media=} | tr '[:upper:]' '[:lower:]' ) ;;
++		Resolution=204x98dpi) RES="-l" ;;
++		Resolution=204x196dpi) RES="" ;;
++		Dial=Manually) NUMBER="-m" ;;
++		Dial=JobName) NUMBER="-j" ;;
++		Dial=FromDocument) NUMBER="-f" ;;
++		PageSize=*) PAGE=$( echo ${opt#PageSize=} | tr '[:upper:]' '[:lower:]' ) ;;
+ 	esac
+ done
+ 
++if [ "$NUMBER" == "-j" ]; then
++	NUMBER="$3"
++elif [ "$NUMBER" == "-f" ]; then
++	# inspired by faxgate
++	NUMBER=`ps2ascii $FAXNAME | tr -d "[:blank:]/-" | awk '{ IGNORECASE=1; if (match($0,/(tele)?fax(nr\.?|nummer)?:?([0-9]+)/, m) != 0) { printf m[3]; exit; } }'`
++fi
++
+ echo 1>&2 # Apparently the first character emitted is somehow "eaten" by the reader
+ 
+ # do some cheking before continuing
+@@ -153,6 +164,7 @@ elif [ ! -x "$FAXPRG" ]; then
+ 	exit_with_error 2 "$FAXPRG: executable not found"
+ fi
+ 
++try_or_die sudo /bin/chown "$USER" "$FAXNAME"
+ try_or_die sudo -u "$USER" "$FAXPRG" -d "$NUMBER" "$FAXNAME"
+ echo "INFO: Fax delivered to $FAXPRG" 1>&2
+ 
+diff -upr patched_sudo/capisuite-fax.ppd patched_number_from_document/capisuite-fax.ppd
+--- patched_sudo/capisuite-fax.ppd	2014-04-16 10:35:51.543843598 +0200
++++ patched_number_from_document/capisuite-fax.ppd	2014-04-16 12:12:43.376511203 +0200
+@@ -1,7 +1,7 @@
+ *PPD-Adobe: "4.3"
+ *FormatVersion:	"4.3"
+ *FileVersion:	"1.0"
+-*LanguageVersion: English 
++*LanguageVersion: English
+ *LanguageEncoding: ISOLatin1
+ *PCFileName:	"CSUITFAX.PPD"
+ *Manufacturer:	"capisuite-fax"
+@@ -54,7 +54,7 @@
+ *DefaultDial: JobName
+ *Dial JobName/Job Name:	""
+ *Dial Manually/Manually:	""
+-*Dial Option/Option (obsolete):	""
++*Dial FromDocument/From Document:	""
+ *CloseUI: *Dial
+ 
+ *DefaultFont: Courier

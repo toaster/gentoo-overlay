@@ -1,0 +1,23 @@
+diff -upr patched_logging/capisuite-fax patched_sudo/capisuite-fax
+--- patched_logging/capisuite-fax	2014-04-16 10:33:38.212493856 +0200
++++ patched_sudo/capisuite-fax	2014-04-16 10:42:28.653839381 +0200
+@@ -45,7 +45,9 @@ trap "cleanup" EXIT
+ function cleanup {
+ 	if [ -n "$FAXNAME" ]; then
+ 		rm -f $FAXNAME.[0-9][0-9][0-9]
+-		if [ $# -lt 6 ]; then rm -f $FAXNAME; fi
++		if [ $# -lt 6 ]; then
++			sudo /bin/rm -f $FAXNAME
++		fi
+ 	fi
+ }
+ 
+@@ -93,7 +95,7 @@ if [ $# -eq 6 ]; then
+ else
+ 	FAXNAME=$(mktemp </dev/null /tmp/fax.XXXXXX) || ( exit_with_error 2 "Failed to create temporary file" )
+ 	cat >$FAXNAME
+-	try_or_die chown "$USER" "$FAXNAME"
++	try_or_die sudo /bin/chown "$USER" "$FAXNAME"
+ fi
+ 
+ # Parse user-specified options from the PostScript file and set -l/-m
