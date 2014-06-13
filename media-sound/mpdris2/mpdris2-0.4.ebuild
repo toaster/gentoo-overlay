@@ -34,4 +34,6 @@ src_prepare() {
 	epatch "${FILESDIR}/lastfm_coverfetcher.patch"
 	epatch "${FILESDIR}/mpd_wrapper.patch"
 	epatch "${FILESDIR}/noidle.patch"
+	epatch "${FILESDIR}/mpg123.patch"
+	epatch "${FILESDIR}/no_cover.patch"
 }

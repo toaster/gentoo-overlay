@@ -1,0 +1,57 @@
+--- src/mpDris2.in.orig	2014-06-13 11:28:43.555506985 +0200
++++ src/mpDris2.in	2014-06-13 11:30:58.601849287 +0200
+@@ -38,6 +38,7 @@ import time
+ import urllib
+ import httplib
+ import json
++import subprocess
+
+ gettext.bindtextdomain('mpDris2', '/usr/share/locale')
+ gettext.textdomain('mpDris2')
+@@ -49,6 +50,7 @@ params = {
+     # Connection
+     'host': 'localhost',
+     'port': 6600,
++    'shout_port': 8000,
+     'password': None,
+     # Library
+     'music_dir': '',
+@@ -260,6 +262,8 @@ class MPDWrapper:
+         if self._params['mmkeys']:
+             self.setup_mediakeys()
+
++        self._mpg123 = None
++
+     def run(self):
+         """ Try to connect to MPD; retry every 5 seconds on failure. """
+         if self.connect():
+@@ -471,6 +475,19 @@ class MPDWrapper:
+         if old_status['state'] != new_status['state']:
+             self._dbus_service.update_property('org.mpris.MediaPlayer2.Player', 'PlaybackStatus')
+
++        if new_status['state'] == 'play':
++            logger.debug("mpg123: " + str(self._mpg123))
++            if self._mpg123:
++                logger.debug("mpg123.poll: " + str(self._mpg123.poll()))
++            if not self._mpg123 or self._mpg123.poll() != None:
++                logger.debug('start: /usr/bin/mpg123 http://' +
++                        self._params['host'] + ":" + str(self._params['shout_port']))
++                self._mpg123 = subprocess.Popen(["/usr/bin/mpg123",
++                        "http://" + self._params['host'] + ":" + str(self._params['shout_port'])])
++                if self._mpg123.poll():
++                    logger.error('failed: /usr/bin/mpg123 http://' +
++                            self._params['host'] + ":" + str(self._params['shout_port']))
++
+         if old_status.get('songid', None) == new_status.get('songid', None):
+             if new_status['state'] == 'play':
+                 expected_position = old_position + (new_time - old_time)
+@@ -580,6 +597,9 @@ class MPDWrapper:
+
+     def stop(self):
+         self._perform_mpd_command('stop')
++        if self._mpg123:
++            self._mpg123.kill()
++            self._mpg123.wait()
+
+     def next(self):
+         self._perform_mpd_command('next')

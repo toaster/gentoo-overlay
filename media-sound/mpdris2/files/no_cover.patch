@@ -1,0 +1,22 @@
+--- src/mpDris2.in.orig	2014-06-13 11:34:32.491141888 +0200
++++ src/mpDris2.in	2014-06-13 11:32:32.103163087 +0200
+@@ -1016,12 +1016,13 @@ def find_cover(song_url, metadata):
+             if response.status == 200:
+                 image_url = json.loads(response.read())['album']['image'][-1]['#text']
+                 logger.info("image url: " + image_url)
+-                image_path = os.path.expanduser(downloaded_covers[0] % (artist, album))
+-                image_dir = os.path.dirname(image_path)
+-                if not os.path.exists(image_dir):
+-                    os.makedirs(image_dir)
+-                urllib.urlretrieve(image_url, image_path)
+-                return 'file://' + image_path
++                if image_url != "":
++                    image_path = os.path.expanduser(downloaded_covers[0] % (artist, album))
++                    image_dir = os.path.dirname(image_path)
++                    if not os.path.exists(image_dir):
++                        os.makedirs(image_dir)
++                    urllib.urlretrieve(image_url, image_path)
++                    return 'file://' + image_path
+
+     return None
+
