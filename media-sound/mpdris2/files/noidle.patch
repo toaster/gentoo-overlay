@@ -1,0 +1,13 @@
+--- src/mpDris2.in.orig	2014-06-13 10:45:08.746733710 +0200
++++ src/mpDris2.in	2014-06-13 10:45:34.356367491 +0200
+@@ -380,8 +380,8 @@ class MPDWrapper:
+         if self._idling:
+             # NOTE: don't use noidle() or _execute() to avoid infinite recursion
+             logger.debug("Leave idle")
+-            #self._write_command("noidle", [])
+-	    self._client.noidle()
++            self._client._write_command("noidle", [])
++            #self._client.noidle()
+             self._client._fetch_object()
+             self._idling = False
+             logger.debug("Left idle")

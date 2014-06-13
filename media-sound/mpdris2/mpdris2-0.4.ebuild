@@ -33,4 +33,5 @@ src_prepare() {
 	epatch "${FILESDIR}/${PV}-desktop.patch"
 	epatch "${FILESDIR}/lastfm_coverfetcher.patch"
 	epatch "${FILESDIR}/mpd_wrapper.patch"
+	epatch "${FILESDIR}/noidle.patch"
 }
