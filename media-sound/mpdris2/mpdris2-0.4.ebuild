@@ -36,4 +36,5 @@ src_prepare() {
 	epatch "${FILESDIR}/noidle.patch"
 	epatch "${FILESDIR}/mpg123.patch"
 	epatch "${FILESDIR}/no_cover.patch"
+	epatch "${FILESDIR}/playlist_ids.patch"
 }
