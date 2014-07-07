@@ -1,0 +1,59 @@
+--- src/mpDris2.in.orig	2014-07-07 10:15:28.763777048 +0200
++++ src/mpDris2.in	2014-07-07 11:00:30.643342976 +0200
+@@ -1013,19 +1013,44 @@ def find_cover(song_url, metadata):
+                     return 'file://' + f
+             # Download from lastfm
+             params = urllib.urlencode({'method': 'album.getinfo', 'api_key': '7317b4a9fe05ebfbcb95e691f2bc6fd7', 'artist': artist, 'album': album, 'format': 'json'})
+-            conn = httplib.HTTPConnection("ws.audioscrobbler.com")
++            conn = httplib.HTTPConnection("ws.audioscrobbler.com", timeout = 3)
+             conn.request("GET", "/2.0/?" + params)
+-            response = conn.getresponse()
+-            if response.status == 200:
+-                image_url = json.loads(response.read())['album']['image'][-1]['#text']
+-                logger.info("image url: " + image_url)
+-                if image_url != "":
+-                    image_path = os.path.expanduser(downloaded_covers[0] % (artist, album))
+-                    image_dir = os.path.dirname(image_path)
+-                    if not os.path.exists(image_dir):
+-                        os.makedirs(image_dir)
+-                    urllib.urlretrieve(image_url, image_path)
+-                    return 'file://' + image_path
++            try:
++                response = conn.getresponse()
++            except Exception as e:
++                response = None
++                logger.error("exception during cover fetch from last.fm: %s" % e)
++            if response:
++                if response.status == 200:
++                    image_url = json.loads(response.read())['album']['image'][-1]['#text']
++                    logger.info("image url: " + image_url)
++                    if image_url != "":
++                        image_path = os.path.expanduser(downloaded_covers[0] % (artist, album))
++                        image_dir = os.path.dirname(image_path)
++                        if not os.path.exists(image_dir):
++                            os.makedirs(image_dir)
++                        urllib.urlretrieve(image_url, image_path)
++                        return 'file://' + image_path
++            else:
++                params = urllib.urlencode({'type': 'album', 'q': "album:%s artist:%s" % (album, artist)})
++                conn = httplib.HTTPSConnection("api.spotify.com", timeout = 3)
++                conn.request("GET", "/v1/search?" + params)
++                try:
++                    response = conn.getresponse()
++                except Exception as e:
++                    response = None
++                    logger.error("exception during cover fetch from spotify: %s" % e)
++                if response:
++                    if response.status == 200:
++                        image_url = json.loads(response.read())['albums']['items'][0]['images'][0]['url']
++                        logger.info("image url: " + image_url)
++                        if image_url != "":
++                            image_path = os.path.expanduser(downloaded_covers[0] % (artist, album))
++                            image_dir = os.path.dirname(image_path)
++                            if not os.path.exists(image_dir):
++                                os.makedirs(image_dir)
++                            urllib.urlretrieve(image_url, image_path)
++                            return 'file://' + image_path
+
+     return None
+
