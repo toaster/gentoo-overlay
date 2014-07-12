@@ -30,8 +30,19 @@ src_unpack() {
 src_prepare() {
 	epatch "${FILESDIR}/desktop.patch"
 	mkdir -p "usr/share/pixmaps"
-	cd "usr/share/pixmaps"
-	ln -s ../icons/hicolor/128x128/apps/hipchat.png .
+	(
+		cd "usr/share/pixmaps"
+		ln -s ../icons/hicolor/256x256/apps/hipchat.png .
+	)
+	(
+		cd "opt/HipChat/lib"
+		rm libz.so
+		ln -s libz.so.1.2.7 libz.so
+		rm libuuid.so
+		ln -s libuuid.so.1.3.0 libuuid.so
+		rm liblzma.so
+		ln -s liblzma.so.5.0.0 liblzma.so
+	)
 }
 
 src_install() {
