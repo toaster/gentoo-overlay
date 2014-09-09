@@ -1,0 +1,29 @@
+--- src/mpDris2.in.orig	2014-06-13 11:34:32.491141888 +0200
++++ src/mpDris2.in	2014-06-13 11:32:32.103163087 +0200
+@@ -1022,15 +1022,17 @@
+                 logger.error("exception during cover fetch from last.fm: %s" % e)
+             if response:
+                 if response.status == 200:
+-                    image_url = json.loads(response.read())['album']['image'][-1]['#text']
+-                    logger.info("image url: " + image_url)
+-                    if image_url != "":
+-                        image_path = os.path.expanduser(downloaded_covers[0] % (artist, album))
+-                        image_dir = os.path.dirname(image_path)
+-                        if not os.path.exists(image_dir):
+-                            os.makedirs(image_dir)
+-                        urllib.urlretrieve(image_url, image_path)
+-                        return 'file://' + image_path
++                    response_data = json.loads(response.read())
++                    if "album" in response_data:
++                        image_url = response_data['album']['image'][-1]['#text']
++                        logger.info("image url: " + image_url)
++                        if image_url != "":
++                            image_path = os.path.expanduser(downloaded_covers[0] % (artist, album))
++                            image_dir = os.path.dirname(image_path)
++                            if not os.path.exists(image_dir):
++                                os.makedirs(image_dir)
++                            urllib.urlretrieve(image_url, image_path)
++                            return 'file://' + image_path
+             else:
+                 params = urllib.urlencode({'type': 'album', 'q': "album:%s artist:%s" % (album, artist)})
+                 conn = httplib.HTTPSConnection("api.spotify.com", timeout = 3)

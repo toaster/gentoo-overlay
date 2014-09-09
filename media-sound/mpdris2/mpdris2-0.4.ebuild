@@ -38,4 +38,5 @@ src_prepare() {
 	epatch "${FILESDIR}/no_cover.patch"
 	epatch "${FILESDIR}/playlist_ids.patch"
 	epatch "${FILESDIR}/cover_fetch_failure+spotify_fallback.patch"
+	epatch "${FILESDIR}/no_album.patch"
 }
