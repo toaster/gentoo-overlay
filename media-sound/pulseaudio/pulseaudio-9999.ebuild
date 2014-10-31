@@ -20,7 +20,7 @@ SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux"
 
 IUSE="+alsa +asyncns bluetooth +caps dbus doc equalizer +gdbm +glib gnome
-gtk ipv6 jack libsamplerate lirc neon +orc oss qt4 realtime ssl systemd
+gtk ipv6 jack libsamplerate lirc neon +ofono +orc oss qt4 realtime ssl systemd
 system-wide tcpd test +udev +webrtc-aec +X xen zeroconf"
 
 # See "*** BLUEZ support not found (requires D-Bus)" in configure.ac
@@ -56,6 +56,7 @@ RDEPEND="
 		net-wireless/bluez:=
 		>=sys-apps/dbus-1.0.0
 		media-libs/sbc
+		ofono? ( net-misc/ofono )
 	)
 	asyncns? ( net-libs/libasyncns[${MULTILIB_USEDEP}] )
 	udev? ( >=virtual/udev-143[hwdb(+)] )
@@ -152,7 +153,10 @@ multilib_src_configure() {
 		if has_version '<net-wireless/bluez-5'; then
 			myconf+=( --disable-bluez5 --enable-bluez4 )
 		else
-			 myconf+=( --enable-bluez5 --disable-bluez4 )
+			myconf+=( --enable-bluez5 --disable-bluez4 )
+			if use ofono; then
+				myconf+=( --with-bluetooth-headset-backend=ofono )
+			fi
 		fi
 	else
 		myconf+=( --disable-bluez5 --disable-bluez4 )
