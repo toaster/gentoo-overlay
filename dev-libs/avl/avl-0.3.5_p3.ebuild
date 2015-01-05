@@ -4,7 +4,7 @@
 
 EAPI=2
 
-inherit flag-o-matic
+inherit flag-o-matic multilib
 
 MY_PV="${PV/_p/-}"
 
@@ -41,8 +41,8 @@ src_compile() {
 
 src_install() {
 	dolib libavl.so.1.5 || die
-	dosym libavl.so.1.5 /usr/lib/libavl.so.1 || die
-	dosym libavl.so.1.5 /usr/lib/libavl.so || die
+	dosym libavl.so.1.5 /usr/$(get_libdir)/libavl.so.1 || die
+	dosym libavl.so.1.5 /usr/$(get_libdir)/libavl.so || die
 	dodoc README || die
 	insinto /usr/include
 	doins avl.h || die
