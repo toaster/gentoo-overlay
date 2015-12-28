@@ -25,13 +25,3 @@ ${DEPEND}"
 BUILD_TARGETS="all"
 MODULE_NAMES="facetimehd()"
 CONFIG_CHECK="VIDEO_V4L2 VIDEOBUF2_CORE VIDEOBUF2_DMA_SG"
-
-FIRMWARE_PATH="/lib/firmware/facetimehd/firmware.bin"
-
-pkg_postinst() {
-	test -f ${FIRMWARE_PATH} || {
-		elog "You will need to install the firmware in ${FIRMWARE_PATH}."
-		elog "See https://github.com/patjak/bcwc_pcie/wiki/Get-Started for instructions"
-		elog "on how to obtain it."
-	}
-}
