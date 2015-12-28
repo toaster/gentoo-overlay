@@ -18,7 +18,9 @@ KEYWORDS="~amd64"
 IUSE=""
 
 DEPEND=""
-RDEPEND="${DEPEND}"
+RDEPEND="
+	media-video/apple_facetimehd_firmware
+${DEPEND}"
 
 BUILD_TARGETS="all"
 MODULE_NAMES="facetimehd()"
