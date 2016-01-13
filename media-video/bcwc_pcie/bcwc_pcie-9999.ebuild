@@ -25,3 +25,7 @@ ${DEPEND}"
 BUILD_TARGETS="all"
 MODULE_NAMES="facetimehd()"
 CONFIG_CHECK="VIDEO_V4L2 VIDEOBUF2_CORE VIDEOBUF2_DMA_SG"
+
+src_prepare() {
+	sed -i "s#KDIR := /lib/modules/\$(KVERSION)/build#KDIR := ${KERNEL_DIR}#" Makefile
+}
