@@ -13,7 +13,8 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND="!net-fs/nfs-utils"
+DEPEND="!net-fs/nfs-utils
+        sys-devel/flex"
 RDEPEND="${DEPEND}"
 
 src_install() {
