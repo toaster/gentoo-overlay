@@ -26,8 +26,6 @@ RDEPEND="${DEPEND}
 	dev-python/notify-python
 "
 
-S="${WORKDIR}/${MY_P}"
-
 #src_prepare() {
 #	epatch "${FILESDIR}/python2.patch"
 #	epatch "${FILESDIR}/${PV}-desktop.patch"
