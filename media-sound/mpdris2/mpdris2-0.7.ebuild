@@ -16,7 +16,7 @@ SRC_URI="http://${PN}.patapon.info/${MY_P}/${P}.tar.gz"
 LICENSE=""
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE=""
+IUSE="mutagen"
 
 DEPEND=""
 # TODO python-notify abhängig von use-flag machen!
@@ -24,6 +24,7 @@ RDEPEND="${DEPEND}
 	dev-lang/python
 	>=dev-python/python-mpd-0.5.1
 	dev-python/notify-python
+	mutagen? ( media-libs/mutagen )
 "
 
 #src_prepare() {
