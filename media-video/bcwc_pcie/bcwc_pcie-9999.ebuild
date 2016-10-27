@@ -11,14 +11,10 @@ HOMEPAGE="https://github.com/patjak/bcwc_pcie"
 SRC_URI=""
 
 EGIT_REPO_URI="https://github.com/patjak/bcwc_pcie"
-use master_branch || {
-	EGIT_BRANCH="mainline"
-}
 
 LICENSE=""
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="master_branch"
 
 DEPEND=""
 RDEPEND="
