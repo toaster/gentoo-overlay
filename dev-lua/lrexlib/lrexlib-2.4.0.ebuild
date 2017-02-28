@@ -13,11 +13,14 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="doc oniguruma pcre"
 
-RDEPEND=">=dev-lang/lua-5.1
+DEPEND="
+	dev-lang/lua
 	oniguruma? ( dev-libs/oniguruma )
-	pcre? ( dev-libs/pcre )"
+	pcre? ( dev-libs/pcre )
+"
 RDEPEND="${DEPEND}
-	app-arch/unzip"
+	app-arch/unzip
+"
 
 src_unpack() {
 	unpack ${A}
