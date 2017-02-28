@@ -17,6 +17,7 @@ KEYWORDS="~x86 ~amd64"
 IUSE=""
 
 DEPEND="
+	dev-lang/lua
 	dev-libs/zziplib
 	sys-libs/zlib
 "
