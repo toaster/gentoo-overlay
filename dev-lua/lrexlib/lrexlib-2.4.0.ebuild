@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+EAPI=5
+
 inherit lua
 
 DESCRIPTION="Binding of three regular expression libraries (POSIX, PCRE and Oniguruma) to Lua"
@@ -16,7 +18,7 @@ IUSE="doc oniguruma pcre"
 DEPEND="
 	dev-lang/lua
 	oniguruma? ( dev-libs/oniguruma )
-	pcre? ( dev-libs/pcre )
+	pcre? ( dev-libs/libpcre:3 )
 "
 RDEPEND="${DEPEND}
 	app-arch/unzip
