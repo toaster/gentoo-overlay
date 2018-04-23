@@ -15,7 +15,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="debug"
 
 DEPEND="dev-qt/qtgui:4
-	dev-qt/qtassistant:4
+	dev-qt/assistant:4
 	app-text/poppler[qt4]
 	virtual/latex-base
 	dev-texlive/texlive-latexextra
