@@ -19,6 +19,7 @@ KEYWORDS="~amd64"
 DEPEND=""
 RDEPEND="
 	media-video/apple_facetimehd_firmware
+	media-libs/libv4l
 ${DEPEND}"
 
 BUILD_TARGETS="all"
