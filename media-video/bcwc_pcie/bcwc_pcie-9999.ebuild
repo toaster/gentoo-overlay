@@ -27,7 +27,7 @@ CONFIG_CHECK="VIDEO_V4L2 VIDEOBUF2_CORE VIDEOBUF2_DMA_SG"
 
 src_unpack() {
 	kernel_is -ge 4 8 && {
-		EGIT_BRANCH="mainline"
+		EGIT_BRANCH="master"
 	}
 	git-r3_src_unpack
 }
