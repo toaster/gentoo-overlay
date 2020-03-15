@@ -12,6 +12,7 @@ LICENSE=""
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE=""
+RESTRICT="network-sandbox"
 
 DEPEND="
 	app-arch/cpio
@@ -37,7 +38,7 @@ FIRMWARE_FILE="firmware.bin"
 FIRMWARE_DIR="facetimehd"
 FIRMWARE_SHA256="e3e6034a67dfdaa27672dd547698bbc5b33f47f1fc7f5572a2fb68ea09d32d3d"
 
-src_compile() {
+src_unpack() {
 	curl -s -L -r ${PKG_RANGE} ${PKG_URL} | xzcat -q |\
 			cpio --format odc -i --to-stdout ${CAM_IF_PKG_PATH} > ${CAM_IF_FILE}
 	echo "${CAM_IF_SHA256} ${CAM_IF_FILE}" | sha256sum -c || die "camera interface checksum mismatch"
